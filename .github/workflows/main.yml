@@ -18,13 +18,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code (needed to get commit message)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # берем немного истории, чтобы гарантированно получить последний коммит
+
       - name: Prepare message
         id: prepare
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
+            commit_message=$(git log -1 --pretty=%B)
             echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
             echo "🚀 Push to branch: ${{ github.ref_name }}" >> $GITHUB_OUTPUT
             echo "📦 Repository: ${{ github.repository }}" >> $GITHUB_OUTPUT
+            echo "📝 Commit message: $commit_message" >> $GITHUB_OUTPUT
             echo "🔗 Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.merged }}" = "true" ]; then
@@ -33,7 +40,7 @@ jobs:
             echo "👤 Author: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
             echo "🔀 From: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
             echo "👉 Into: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
-            echo "🔗 PR URL: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+            echo "🔗 URL: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "No relevant action, skipping." >> $GITHUB_STEP_SUMMARY
