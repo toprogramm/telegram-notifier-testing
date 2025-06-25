@@ -1,1 +1,1 @@
-add new file. to verify main activity without merge
+edit to check how pr works 
