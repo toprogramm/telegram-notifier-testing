@@ -1,6 +1,11 @@
-name: Notify Telegram on Merged PR
+name: Notify Telegram
 
 on:
+  push:
+    branches:
+      - main
+      - demo
+      - prod
   pull_request:
     types: [closed]
     branches:
@@ -10,19 +15,36 @@ on:
 
 jobs:
   notify:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
+      - name: Prepare message
+        id: prepare
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
+            echo "🚀 Push to branch: ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "📦 Repository: ${{ github.repository }}" >> $GITHUB_OUTPUT
+            echo "🔗 Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
+            echo "✅ Merged PR: ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+            echo "👤 Author: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+            echo "🔀 From: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+            echo "👉 Into: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+            echo "🔗 URL: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No relevant action, skipping." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
       - name: Send Telegram Notification
+        if: steps.prepare.outputs.MESSAGE != ''
         uses: toprogramm/telegram-notifier@latest
         with:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
           thread_id: ${{ secrets.TELEGRAM_THREAD_ID }}
-          message: |
-            ✅ PR Merged: ${{ github.event.pull_request.title }}
-            👤 Author: ${{ github.event.pull_request.user.login }}
-            🔀 From: ${{ github.event.pull_request.head.ref }}
-            👉 Into: ${{ github.event.pull_request.base.ref }}
-            🔗 URL: ${{ github.event.pull_request.html_url }}
+          message: ${{ steps.prepare.outputs.MESSAGE }}
