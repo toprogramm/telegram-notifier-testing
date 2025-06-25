@@ -18,7 +18,7 @@ jobs:
         id: prepare
         run: |
           echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
-          echo "👉✅ ОБНОВЛЕНА ВЕТКА: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+          echo "✅ ОБНОВЛЕНА ВЕТКА: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
           echo "✏️ Что Обновлено: ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
           echo "👤 Автор: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
           echo "🔀 Из Ветки: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
