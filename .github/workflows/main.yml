@@ -1,11 +1,6 @@
-name: Notify Telegram
+name: Notify Telegram on Merged PR
 
 on:
-  push:
-    branches:
-      - main
-      - demo
-      - prod
   pull_request:
     types: [closed]
     branches:
@@ -15,39 +10,22 @@ on:
 
 jobs:
   notify:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code (needed to get commit message)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2   # берем немного истории, чтобы гарантированно получить последний коммит
-
       - name: Prepare message
         id: prepare
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            commit_message=$(git log -1 --pretty=%B)
-            echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
-            echo "🚀 ПРЯМОЙ ПУШ В ВЕТКУ: ${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "📝 Текст Коммита: $commit_message" >> $GITHUB_OUTPUT
-            echo "🔗 Ссылка на Коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-            echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
-            echo "✅ ОБНОВЛЕНИЕ: ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
-            echo "👤 Автор: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
-            echo "🔀 Из Ветки: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
-            echo "👉 В Ветку: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
-            echo "🔗 ССылка на ПулРеквест: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "No relevant action, skipping." >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
+          echo "MESSAGE<<EOF" >> $GITHUB_OUTPUT
+          echo "✅ ОБНОВЛЕНИЕ: ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          echo "👤 Автор: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          echo "🔀 Из Ветки: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+          echo "👉 В Ветку: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+          echo "🔗 ССылка на ПулРеквест: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Send Telegram Notification
-        if: steps.prepare.outputs.MESSAGE != ''
         uses: toprogramm/telegram-notifier@latest
         with:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
