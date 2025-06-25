@@ -33,7 +33,7 @@ jobs:
             echo "👤 Author: ${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
             echo "🔀 From: ${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
             echo "👉 Into: ${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
-            echo "🔗 URL: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+            echo "🔗 PR URL: ${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "No relevant action, skipping." >> $GITHUB_STEP_SUMMARY
