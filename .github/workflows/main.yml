@@ -25,7 +25,7 @@ jobs:
             echo "✅ ОБНОВЛЕНА ВЕТКА: ${{ github.event.pull_request.base.ref }}"
             echo "✏️ Что Обновлено: ${{ github.event.pull_request.title }}"
             echo "👤 Автор: ${{ github.event.pull_request.user.login }}"
-            echo "🔀 Из Ветки: ${{ github.event.pull_request.head.ref }}"
+            echo "🔀 Из Ветки: ${{ github.event.pull_request.head.ref }} →"
             echo "🔗 Ссылка на ПулРеквест: ${{ github.event.pull_request.html_url }}"
             echo "EOF"
           } >> $GITHUB_OUTPUT
